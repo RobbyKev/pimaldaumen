@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Pi mal Daumen!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titan+One&family=Nunito:wght@600;700;800;900&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --sun:#FFCC2E; --sun-deep:#F5B800; --ink:#1D1A3A; --paper:#FFFDF4; --muted:#5B5675;
+  --pink:#FF5A8A; --teal:#12B3A3; --blue:#3F6BFF; --orange:#FF8A1F; --violet:#8A5CF6; --green:#4FB83D; --red:#F0463A;
+  --r:18px; --bw:3px; --sh:5px 5px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--sun); color:var(--ink);
+  font:700 16px/1.45 "Nunito", system-ui, sans-serif;
+  background-image:radial-gradient(rgba(29,26,58,.10) 1.5px, transparent 1.6px);
+  background-size:22px 22px;
+}
+.wrap{max-width:720px; margin:0 auto; padding-inline:16px; padding-block:18px 40px; min-height:100%}
+h1,h2,h3,.disp{font-family:"Titan One","Arial Rounded MT Bold",system-ui,sans-serif; font-weight:400; letter-spacing:.3px; text-wrap:balance; margin:0}
+button,input{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--blue); outline-offset:3px}
+
+.card{background:var(--paper); border:var(--bw) solid var(--ink); border-radius:var(--r); box-shadow:var(--sh)}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; border:var(--bw) solid var(--ink); border-radius:999px;
+  padding:12px 22px; background:var(--paper); box-shadow:4px 4px 0 var(--ink); font-weight:900; font-size:17px; transition:transform .08s, box-shadow .08s}
+.btn:active{transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink)}
+.btn.primary{background:var(--pink); color:#fff}
+.btn.go{background:var(--teal); color:#fff}
+.btn.big{font-size:20px; padding:15px 28px; width:100%}
+.btn.small{padding:7px 14px; font-size:14px; box-shadow:3px 3px 0 var(--ink)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+.stack{display:flex; flex-direction:column; gap:16px}
+.label{font-size:13px; text-transform:uppercase; letter-spacing:1.2px; font-weight:900; color:var(--muted)}
+
+/* Logo */
+.logo{position:relative; text-align:center; padding-block:28px 10px}
+.logo .burst{display:inline-block; background:var(--pink); color:#fff; border:var(--bw) solid var(--ink); border-radius:28px;
+  padding:18px 26px 14px; box-shadow:7px 7px 0 var(--ink); transform:rotate(-3deg)}
+.logo h1{font-size:clamp(40px,11vw,74px); line-height:.95; -webkit-text-stroke:2px var(--ink); paint-order:stroke fill; text-shadow:3px 3px 0 var(--ink)}
+.logo .tag{display:inline-block; margin-top:18px; background:var(--paper); border:var(--bw) solid var(--ink); border-radius:999px; padding:6px 16px; transform:rotate(1.5deg); font-weight:900}
+.thumb{position:absolute; right:6%; top:6px; font-family:"Titan One",sans-serif; background:var(--teal); color:#fff; border:var(--bw) solid var(--ink);
+  border-radius:50%; width:78px; height:78px; display:grid; place-items:center; transform:rotate(12deg); box-shadow:4px 4px 0 var(--ink); font-size:14px; line-height:1.05; text-align:center}
+
+/* Setup */
+.section{padding:18px}
+.players{display:flex; flex-wrap:wrap; gap:8px}
+.chip{display:inline-flex; align-items:center; gap:6px; border:2px solid var(--ink); border-radius:999px; padding:5px 8px 5px 14px; background:#fff; font-weight:800}
+.chip button{border:0; background:var(--ink); color:#fff; width:22px; height:22px; border-radius:50%; font-size:13px; line-height:1; display:grid; place-items:center}
+.addrow{display:flex; gap:8px}
+.addrow input{flex:1; min-width:0}
+.inp{border:var(--bw) solid var(--ink); border-radius:14px; padding:11px 14px; background:#fff; font-weight:800; font-size:17px}
+.cats{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px}
+.cat{position:relative; text-align:left; border:var(--bw) solid var(--ink); border-radius:16px; padding:12px 12px 12px; background:#fff; box-shadow:3px 3px 0 var(--ink);
+  display:flex; flex-direction:column; gap:2px; min-height:88px; transition:transform .08s}
+.cat .nm{font-family:"Titan One",sans-serif; font-size:17px; line-height:1.1}
+.cat .ct{font-size:13px; color:var(--muted); font-weight:800}
+.cat .dot{width:26px; height:26px; border-radius:50%; border:2px solid var(--ink); margin-bottom:6px; display:grid; place-items:center; font-size:14px; color:#fff; font-weight:900}
+.cat[aria-pressed="true"]{background:var(--c); color:#fff}
+.cat[aria-pressed="true"] .ct{color:rgba(255,255,255,.9)}
+.cat[aria-pressed="true"] .dot{background:#fff!important; color:var(--ink)}
+.seg{display:flex; flex-wrap:wrap; gap:8px}
+.seg button{border:2px solid var(--ink); border-radius:999px; padding:7px 16px; background:#fff; font-weight:900}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--sun)}
+.toggle{display:flex; align-items:center; gap:10px; font-weight:800}
+.hint{font-size:14px; color:var(--muted); font-weight:700; margin:0}
+
+/* Game */
+.topbar{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px}
+.catpill{display:inline-block; border:2px solid var(--ink); border-radius:999px; padding:5px 14px; background:var(--c); color:#fff; font-weight:900; font-size:14px}
+.counter{font-family:"Titan One",sans-serif; font-size:18px; font-variant-numeric:tabular-nums}
+.qcard{padding:26px 22px 22px; position:relative; overflow:hidden}
+.qcard::before{content:""; position:absolute; inset:0 0 auto 0; height:12px; background:var(--c); border-bottom:var(--bw) solid var(--ink)}
+.qnum{font-family:"Titan One",sans-serif; font-size:15px; color:var(--muted); margin-top:4px}
+.qtext{font-family:"Titan One",sans-serif; font-size:clamp(24px,5.6vw,36px); line-height:1.18; margin:10px 0 6px; text-wrap:balance}
+.unit{font-weight:900; color:var(--muted)}
+.reader{display:flex; align-items:center; gap:8px; font-weight:800; margin-top:14px}
+.reader b{background:var(--ink); color:var(--sun); border-radius:8px; padding:2px 10px}
+.est{display:grid; grid-template-columns:1fr; gap:10px}
+.estrow{display:grid; grid-template-columns:minmax(80px,1fr) 1.4fr; gap:10px; align-items:center}
+.estrow label{font-weight:900; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.estrow .inp{width:100%; font-variant-numeric:tabular-nums}
+
+/* Reveal */
+.answer{text-align:center; padding:24px 18px}
+.answer .big{font-family:"Titan One",sans-serif; font-size:clamp(40px,12vw,76px); line-height:1; font-variant-numeric:tabular-nums; color:var(--ink);
+  display:inline-block; background:var(--sun); border:var(--bw) solid var(--ink); border-radius:20px; padding:14px 22px 10px; box-shadow:var(--sh); transform:rotate(-1.5deg); animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+.answer .u{display:block; font-weight:900; font-size:18px; margin-top:14px}
+.info{font-weight:700; color:var(--ink); margin:14px auto 0; max-width:58ch}
+@keyframes pop{from{transform:scale(.4) rotate(-8deg)} to{transform:scale(1) rotate(-1.5deg)}}
+@media (prefers-reduced-motion:reduce){.answer .big{animation:none}}
+.results{display:flex; flex-direction:column; gap:8px}
+.res{display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; border:2px solid var(--ink); border-radius:14px; padding:9px 14px; background:#fff; font-variant-numeric:tabular-nums}
+.res.win{background:var(--green); color:#fff}
+.res .d{font-size:14px; font-weight:800; opacity:.85}
+.res .v{font-weight:900}
+.win-badge{font-family:"Titan One",sans-serif}
+.lnk{color:var(--ink); font-weight:900}
+
+/* Scores */
+.scores{display:flex; flex-direction:column; gap:8px}
+.score{display:grid; grid-template-columns:28px 1fr auto auto auto; gap:10px; align-items:center; background:#fff; border:2px solid var(--ink); border-radius:14px; padding:8px 12px; font-variant-numeric:tabular-nums}
+.score .pos{font-family:"Titan One",sans-serif}
+.score .pts{font-family:"Titan One",sans-serif; font-size:22px; min-width:34px; text-align:right}
+.pm{border:2px solid var(--ink); background:var(--paper); border-radius:10px; width:32px; height:32px; font-weight:900}
+.podium{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; align-items:end; margin-top:8px}
+.pod{border:var(--bw) solid var(--ink); border-radius:16px 16px 6px 6px; text-align:center; padding:10px 6px; box-shadow:4px 4px 0 var(--ink); overflow:hidden}
+.pod .n{font-weight:900; overflow-wrap:anywhere}
+.pod .p{font-family:"Titan One",sans-serif; font-size:26px}
+
+/* Modal */
+.modal{position:fixed; inset:0; background:rgba(29,26,58,.55); display:grid; place-items:center; padding:16px; z-index:10}
+.modal .card{width:100%; max-width:520px; max-height:88vh; overflow:auto; padding:20px}
+.foot{text-align:center; font-size:13px; color:var(--ink); opacity:.7; margin-top:26px; font-weight:700}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ---------- Fragenkatalog: [Frage, Antwort (Zahl), Einheit, Info] ---------- */
+const CATS = [
+ {k:"mix", n:"Bunt gemischt", c:"#FF5A8A", q:[
+  ["Wie viele Tasten hat ein klassisches Klavier?",88,"Tasten","52 weiße und 36 schwarze."],
+  ["Wie viele Quadrate (in allen Größen) findet man auf einem Schachbrett?",204,"Quadrate","64 kleine, 49 aus 2×2, 36 aus 3×3 … bis 1 großes 8×8."],
+  ["Wie hoch ist der Eiffelturm inklusive Antenne?",330,"Meter","Seit einer neuen Antenne 2022 sind es 330 m."],
+  ["Wie viele Stufen hat der Eiffelturm bis ganz oben?",1665,"Stufen","Für Besucher sind nur die 674 Stufen bis zur 2. Etage offen."],
+  ["In welchem Jahr wurde die erste SMS verschickt?",1992,"","Sie lautete „Merry Christmas“."],
+  ["Wie viele Länder gehören zur Europäischen Union?",27,"Länder","Seit dem Brexit 2020 sind es 27."],
+  ["Wie viele Sprachen werden auf der Welt ungefähr gesprochen?",7000,"Sprachen","Rund 7.000 – etwa 40 % davon sind vom Aussterben bedroht."],
+  ["Wie lang ist die Chinesische Mauer mit allen Abschnitten?",21196,"Kilometer","Ergebnis einer offiziellen Vermessung von 2012."],
+  ["In welchem Jahr kam das erste iPhone auf den Markt?",2007,"","In Deutschland ab November 2007."],
+  ["Wie viele Kombinationen gibt es für sechs 2×4-LEGO-Steine derselben Farbe?",915103765,"Kombinationen","Über 915 Millionen – 2005 von einem Mathematiker berechnet."],
+  ["Wie viele Menschen leben ungefähr auf der Erde?",8.2,"Milliarden","Stand etwa 2025."],
+  ["Wie viele Einzelteile hat der LEGO-Millennium-Falke (UCS, 2017)?",7541,"Teile","Set 75192 – lange eines der größten LEGO-Sets."]
+ ]},
+ {k:"bremen", n:"Bremen & Umzu", c:"#3F6BFF", q:[
+  ["Seit welchem Jahr steht der steinerne Roland auf dem Bremer Marktplatz?",1404,"","Er ersetzte eine hölzerne Figur, die 1366 verbrannte."],
+  ["Wie hoch ist der Bremer Roland insgesamt, also mit Sockel und Baldachin?",10.2,"Meter","Die Figur selbst ist gut 5,5 m groß."],
+  ["In welchem Jahr wurde die Bronzefigur der Stadtmusikanten am Rathaus aufgestellt?",1953,"","Geschaffen vom Bildhauer Gerhard Marcks."],
+  ["Seit welchem Jahr sind Rathaus und Roland UNESCO-Welterbe?",2004,"",""],
+  ["Wie viele Einwohner hat die Stadt Bremen?",570000,"Einwohner","Rund 570.000 – ohne Bremerhaven."],
+  ["In welchem Jahr wurde der SV Werder Bremen gegründet?",1899,"","Damals als „Fußballverein Werder“."],
+  ["Wie oft wurde Werder Bremen Deutscher Meister?",4,"Mal","1965, 1988, 1993 und 2004."],
+  ["Wie viele Zuschauer passen ins Weserstadion?",42100,"Plätze","Rund 42.100 bei Bundesligaspielen."],
+  ["Wie lang ist die Weser von Hann. Münden bis zur Mündung in die Nordsee?",452,"Kilometer","Inklusive Außenweser bis zur Nordsee."],
+  ["Aus welchem Jahr stammt der älteste Fasswein im Bremer Ratskeller?",1653,"","Ein Rüdesheimer – der älteste Fasswein Deutschlands."],
+  ["Wie lang ist die Böttcherstraße?",108,"Meter","Kurz, aber voller Kunst – mit Glockenspiel aus Meißner Porzellan."],
+  ["Wie viele Beine haben die Bremer Stadtmusikanten zusammen?",14,"Beine","Esel 4 + Hund 4 + Katze 4 + Hahn 2."]
+ ]},
+ {k:"kueste", n:"Küste & Meer", c:"#12B3A3", q:[
+  ["Wie viele der Ostfriesischen Inseln sind bewohnt?",7,"Inseln","Borkum, Juist, Norderney, Baltrum, Langeoog, Spiekeroog, Wangerooge."],
+  ["Wie groß ist das Wattenmeer (Niederlande, Deutschland, Dänemark)?",11500,"km²","Das größte zusammenhängende Wattgebiet der Welt."],
+  ["Seit welchem Jahr ist das Wattenmeer UNESCO-Weltnaturerbe?",2009,"","Der dänische Teil kam 2014 dazu."],
+  ["Wie tief ist die Nordsee im Durchschnitt?",94,"Meter","Die tiefste Stelle liegt bei über 700 m in der Norwegischen Rinne."],
+  ["Wie tief ist die Ostsee an ihrer tiefsten Stelle?",459,"Meter","Das Landsorttief in Schweden."],
+  ["Wie viel Gramm Salz stecken in einem Liter Nordseewasser?",35,"Gramm","Die Ostsee ist viel weniger salzig."],
+  ["Wie lang ist Sylt von Norden nach Süden?",38,"Kilometer","An der schmalsten Stelle nur rund 500 m breit."],
+  ["Wie hoch ist die „Lange Anna“, der Felsen auf Helgoland?",47,"Meter","Aus rotem Buntsandstein."],
+  ["Wie lang ist der Nord-Ostsee-Kanal?",98,"Kilometer","Genau 98,26 km – die meistbefahrene künstliche Wasserstraße der Welt."],
+  ["Wie weit ist Helgoland ungefähr von Cuxhaven entfernt?",70,"Kilometer","Rund 70 km Luftlinie."],
+  ["Wie viele Stunden liegen an der Nordsee zwischen zwei Hochwassern?",12.4,"Stunden","Rund 12 Stunden 25 Minuten – deshalb verschiebt sich die Flut jeden Tag."]
+ ]},
+ {k:"tiere", n:"Hund, Katze, Tier", c:"#FF8A1F", q:[
+  ["Wie viele Stunden schläft eine Katze durchschnittlich pro Tag?",15,"Stunden","Je nach Alter 12–16 Stunden."],
+  ["Wie viele Katzen leben in deutschen Haushalten?",15.7,"Millionen","Stand 2023 – die Katze ist das beliebteste Haustier."],
+  ["Wie viele Hunde leben in deutschen Haushalten?",10.5,"Millionen","Stand 2023."],
+  ["Wie viele Riechzellen hat ein Schäferhund?",220,"Millionen","Der Mensch hat nur etwa 5–10 Millionen."],
+  ["Wie viele Zähne hat ein erwachsener Hund?",42,"Zähne","Welpen haben 28 Milchzähne."],
+  ["Wie viele Herzen hat ein Oktopus?",3,"Herzen","Und blaues Blut."],
+  ["Wie lang ist die Zunge einer Giraffe?",50,"Zentimeter","Etwa 45–50 cm, dunkel gefärbt gegen Sonnenbrand."],
+  ["Wie viele Eier legt eine Legehenne pro Jahr?",300,"Eier","Ein Wildhuhn legt nur etwa 20–30."],
+  ["Wie schnell kann ein Gepard sprinten?",110,"km/h","Allerdings nur für wenige hundert Meter."],
+  ["Wie viele Stacheln hat ein Igel?",7000,"Stacheln","Etwa 6.000–8.000."],
+  ["Wie viele Beine hat der Tausendfüßer mit den meisten Beinen, der je gefunden wurde?",1306,"Beine","Eumillipes persephone, 2021 in Australien entdeckt."],
+  ["Wie schwer wird ein Blauwal?",150,"Tonnen","Rekordtiere wogen fast 200 Tonnen."]
+ ]},
+ {k:"essen", n:"Essen & Trinken", c:"#F0463A", q:[
+  ["Wie viele Liter Bier trinkt ein Deutscher im Schnitt pro Jahr?",88,"Liter","Tendenz sinkend – 1990 waren es noch über 140 Liter."],
+  ["Wie viele Kilo Schokolade isst ein Deutscher pro Jahr?",9,"Kilogramm","Rund 9 kg – Deutschland liegt weltweit weit vorn."],
+  ["Wie viele Liter Kaffee trinkt ein Deutscher pro Jahr?",167,"Liter","Mehr als Bier und Mineralwasser."],
+  ["Wie viele Brotsorten gibt es in Deutschland?",3200,"Sorten","Über 3.200 – die deutsche Brotkultur ist immaterielles UNESCO-Kulturerbe."],
+  ["In welchem Jahr erfand Herta Heuwer in Berlin die Currywurst?",1949,"",""],
+  ["Aus welchem Jahr stammt das bayerische Reinheitsgebot für Bier?",1516,"",""],
+  ["Wie viele Stück Würfelzucker (je 3 g) stecken in einem Liter Cola?",35,"Würfel","Rund 106 g Zucker pro Liter."],
+  ["Wie viele Samen sitzen außen auf einer Erdbeere?",200,"Samen","Die Erdbeere ist botanisch eine Sammelnussfrucht."],
+  ["Wie viele Liter Wasser stecken in der Herstellung von 1 kg Rindfleisch?",15400,"Liter","Sogenanntes virtuelles Wasser, inkl. Futteranbau."],
+  ["Wie viele Kalorien hat ein Big Mac?",500,"kcal","Etwa 500 kcal."],
+  ["Wie viele Kaffeebohnen braucht man ungefähr für einen Espresso?",50,"Bohnen","Rund 7 g Kaffeepulver – etwa 50 Bohnen."]
+ ]},
+ {k:"sport", n:"Sport", c:"#4FB83D", q:[
+  ["Wie lang ist ein Marathon genau?",42195,"Meter",""],
+  ["Wie viele Dellen hat ein typischer Golfball?",336,"Dellen","Je nach Modell 300–500."],
+  ["Wie viele Tore schoss Deutschland im WM-Halbfinale 2014 gegen Brasilien?",7,"Tore","Endstand 7:1."],
+  ["Wie viel wiegt ein offizieller Fußball?",430,"Gramm","Erlaubt sind 410–450 g."],
+  ["Wie lautet der Weltrekord über 100 m der Männer?",9.58,"Sekunden","Usain Bolt, Berlin 2009."],
+  ["Wie hoch hängt ein Basketballkorb?",3.05,"Meter","Genau 10 Fuß."],
+  ["Wie lang ist ein Fußballfeld bei einer WM?",105,"Meter","68 m breit."],
+  ["Wie hoch ist der Weltrekord im Hochsprung der Männer?",2.45,"Meter","Javier Sotomayor, 1993 – bis heute ungebrochen."],
+  ["Wie viele Bundesligatore schoss Gerd Müller?",365,"Tore","In 427 Spielen."],
+  ["Wie viele Kilometer ist die Tour de France ungefähr lang?",3400,"Kilometer","Je nach Jahr etwa 3.300–3.500 km in 21 Etappen."],
+  ["Wie oft wurde die deutsche Männer-Nationalmannschaft Weltmeister?",4,"Mal","1954, 1974, 1990, 2014."],
+  ["Wie viele Spieler stehen beim Rugby (Union) pro Team auf dem Feld?",15,"Spieler",""]
+ ]},
+ {k:"film", n:"Film & Fantasy", c:"#8A5CF6", q:[
+  ["Wie viele Treppen gibt es laut den Büchern in Hogwarts?",142,"Treppen","Manche davon wechseln freitags ihr Ziel."],
+  ["Wie viele Kinder haben Molly und Arthur Weasley?",7,"Kinder","Bill, Charlie, Percy, Fred, George, Ron und Ginny."],
+  ["In welchem Jahr erschien der erste Harry-Potter-Band auf Englisch?",1997,"","Auf Deutsch 1998."],
+  ["In welchem Jahr kam der erste Star-Wars-Film in die US-Kinos?",1977,"",""],
+  ["Wie alt wurde Yoda?",900,"Jahre",""],
+  ["Wie viele Oscars gewann „Titanic“?",11,"Oscars","Rekord – gemeinsam mit „Ben Hur“ und „Die Rückkehr des Königs“."],
+  ["Wie lang ist „Der Herr der Ringe: Die Rückkehr des Königs“ in der Kinofassung?",201,"Minuten","Die Extended Edition dauert über 4 Stunden."],
+  ["In welchem Jahr kam Disneys „Schneewittchen und die sieben Zwerge“ ins Kino?",1937,"","Der erste abendfüllende Disney-Zeichentrickfilm."],
+  ["Wie viele Zwerge begleiten Bilbo in „Der Hobbit“?",13,"Zwerge","Angeführt von Thorin Eichenschild."],
+  ["Wie viele Filme umfasst das Marvel-Universum bis einschließlich „Avengers: Endgame“?",22,"Filme","Mit „Far From Home“ sind es 23."],
+  ["Wie viele Dalmatiner-Welpen hat Pongo mit Perdita selbst in „101 Dalmatiner“?",15,"Welpen","Die anderen 84 werden adoptiert."]
+ ]},
+ {k:"musik", n:"Musik & Pop", c:"#E0379A", q:[
+  ["Wie viele Saiten hat eine Konzertharfe?",47,"Saiten",""],
+  ["In welchem Jahr gewann Lena den Eurovision Song Contest?",2010,"","Mit „Satellite“ in Oslo."],
+  ["Wie oft hat Deutschland den ESC gewonnen?",2,"Mal","1982 Nicole, 2010 Lena."],
+  ["Wie viele Nummer-1-Hits hatten die Beatles in Großbritannien?",17,"Hits",""],
+  ["In welchem Jahr erschien Michael Jacksons Album „Thriller“?",1982,"","Das meistverkaufte Album aller Zeiten."],
+  ["Wie viele Sekunden dauert „Bohemian Rhapsody“ von Queen?",355,"Sekunden","5:55 Minuten."],
+  ["In welchem Jahr gründeten sich die Rolling Stones?",1962,"",""],
+  ["In welchem Jahr erschien Nenas „99 Luftballons“?",1983,"","Auch auf Englisch ein Welthit."],
+  ["Wie viele Mitglieder hat die K-Pop-Band BTS?",7,"Mitglieder",""],
+  ["Wie viele schwarze Tasten hat ein Klavier?",36,"Tasten",""],
+  ["In welchem Jahr war Woodstock?",1969,"","Rund 400.000 Menschen kamen."]
+ ]},
+ {k:"zeit", n:"Zeitreise BRD & DDR", c:"#C78A00", q:[
+  ["Wie lang war die Berliner Mauer rund um West-Berlin?",155,"Kilometer",""],
+  ["In welchem Jahr wurde die D-Mark eingeführt?",1948,"",""],
+  ["Wie viele D-Mark war ein Euro wert?",1.95583,"D-Mark","Der feste Umrechnungskurs."],
+  ["Wie viele Einwohner hatte die DDR 1989?",16.4,"Millionen",""],
+  ["In welchem Jahr lief die erste „Tagesschau“?",1952,"",""],
+  ["Seit welchem Jahr gibt es „Die Sendung mit der Maus“?",1971,"",""],
+  ["In welchem Jahr ging mit RTL plus das erste private Fernsehen auf Sendung?",1984,"",""],
+  ["In welchem Jahr kam der Game Boy in Japan heraus?",1989,"","Mit Tetris als Hit."],
+  ["In welchem Jahr kam der erste Sony Walkman auf den Markt?",1979,"",""],
+  ["In welchem Jahr kam das Euro-Bargeld?",2002,"","Als Buchgeld gab es den Euro schon ab 1999."],
+  ["Wie viele Jahre stand die Berliner Mauer?",28,"Jahre","Vom 13. August 1961 bis zum 9. November 1989."]
+ ]},
+ {k:"junior", n:"Junior", c:"#00A6E0", q:[
+  ["Wie viele Knochen hat ein neugeborenes Baby ungefähr?",300,"Knochen","Viele wachsen später zusammen – Erwachsene haben 206."],
+  ["Wie viele Minuten hat ein Tag?",1440,"Minuten",""],
+  ["Wie viele Sekunden hat eine Stunde?",3600,"Sekunden",""],
+  ["Wie viele Stunden schläft ein Koala am Tag?",20,"Stunden","Bis zu 22 Stunden – Eukalyptus liefert wenig Energie."],
+  ["Wie viele Milchzähne hat ein Kind?",20,"Zähne",""],
+  ["Wie viele Monde hat der Mars?",2,"Monde","Phobos und Deimos."],
+  ["Wie schwer ist ein Elefantenbaby bei der Geburt?",100,"Kilogramm","Etwa 100–120 kg."],
+  ["Wie viele Arme hat ein Kalmar (mit den zwei Fangarmen)?",10,"Arme","8 Arme und 2 lange Tentakel."],
+  ["Wie viele Tage hat ein Schaltjahr?",366,"Tage",""],
+  ["Wie viele Farben hat ein Regenbogen, wie man sie meist aufzählt?",7,"Farben","Rot, Orange, Gelb, Grün, Blau, Indigo, Violett."],
+  ["Wie viele Beine hat eine Biene?",6,"Beine","Alle Insekten haben 6 Beine."]
+ ]},
+ {k:"koerper", n:"Mensch & Körper", c:"#D9486B", q:[
+  ["Wie viele Knochen hat ein erwachsener Mensch?",206,"Knochen",""],
+  ["Wie oft schlägt ein Herz an einem Tag?",100000,"Schläge","Rund 100.000 Mal."],
+  ["Wie viele Haare hat ein Mensch auf dem Kopf?",100000,"Haare","Blonde eher mehr, Rothaarige eher weniger."],
+  ["Wie viele Liter Blut hat ein Erwachsener?",5,"Liter","Etwa 7–8 % des Körpergewichts."],
+  ["Wie viele Muskeln hat der menschliche Körper?",650,"Muskeln","Je nach Zählweise über 650."],
+  ["Wie viel wiegt ein menschliches Gehirn?",1350,"Gramm","Etwa 1.300–1.400 g."],
+  ["Wie oft atmet ein Mensch pro Tag?",20000,"Atemzüge",""],
+  ["Wie viele Zentimeter wachsen Kopfhaare pro Jahr?",12,"Zentimeter","Etwa 1 cm pro Monat."],
+  ["Wie oft blinzelt ein Mensch pro Minute?",15,"Mal","Etwa 10–20 Mal."],
+  ["Wie viele Zähne hat ein Erwachsener mit Weisheitszähnen?",32,"Zähne",""],
+  ["Wie lang sind alle Blutgefäße eines Menschen aneinandergelegt?",100000,"Kilometer","Rund 100.000 km – zweimal um die Erde."]
+ ]},
+ {k:"welt", n:"Weltall & Erde", c:"#2F3D8F", q:[
+  ["Wie weit ist der Mond im Schnitt von der Erde entfernt?",384400,"Kilometer",""],
+  ["Wie viele Sekunden braucht das Sonnenlicht bis zur Erde?",499,"Sekunden","Gut 8 Minuten."],
+  ["Wie heiß ist die Oberfläche der Sonne?",5500,"°C",""],
+  ["Wie hoch ist der Mount Everest?",8849,"Meter","Neu vermessen 2020."],
+  ["Wie tief ist der Marianengraben an der tiefsten Stelle?",10994,"Meter","Das Challengertief, knapp 11 km."],
+  ["Wie viele Menschen standen bisher auf dem Mond?",12,"Menschen","Alle zwischen 1969 und 1972."],
+  ["Wie schnell fliegt die Raumstation ISS?",28000,"km/h",""],
+  ["Wie oft umrundet die ISS die Erde an einem Tag?",16,"Mal",""],
+  ["Wie groß ist der Erdumfang am Äquator?",40075,"Kilometer",""],
+  ["Wie alt ist die Erde?",4.6,"Milliarden Jahre","Etwa 4,5–4,6 Milliarden Jahre."],
+  ["Wie viel Prozent der Erdoberfläche sind mit Wasser bedeckt?",71,"Prozent",""]
+ ]},
+ {k:"de", n:"Deutschland", c:"#1D1A3A", q:[
+  ["Wie viele Einwohner hat Deutschland?",83.5,"Millionen",""],
+  ["Wie hoch ist die Zugspitze?",2962,"Meter",""],
+  ["Wie hoch ist der Kölner Dom?",157,"Meter",""],
+  ["Wie viele Stufen führen im Kölner Dom auf die Aussichtsplattform des Südturms?",533,"Stufen",""],
+  ["Wie hoch ist der Berliner Fernsehturm?",368,"Meter","Das höchste Bauwerk Deutschlands."],
+  ["Wie viele Brücken hat Hamburg?",2500,"Brücken","Rund 2.500 – mehr als Venedig und Amsterdam zusammen."],
+  ["Wie groß ist der Bodensee?",536,"km²",""],
+  ["Wie lang ist der Rhein insgesamt?",1230,"Kilometer",""],
+  ["Wie viele Kilometer Autobahn gibt es in Deutschland?",13200,"Kilometer","Rund 13.200 km."],
+  ["Wie viele Bundeskanzler hatte die Bundesrepublik bisher (Friedrich Merz mitgezählt)?",10,"Kanzler","Adenauer, Erhard, Kiesinger, Brandt, Schmidt, Kohl, Schröder, Merkel, Scholz, Merz."],
+  ["Wie viele Einwohner hat Berlin?",3.8,"Millionen","Die mit Abstand größte Stadt Deutschlands."]
+ ]}
+];
+
+/* ---------- Zusatzfragen (Runde 2) ---------- */
+const MORE = {
+ mix:[
+  ["In welchem Jahr wurde der Zauberwürfel erfunden?",1974,"","Von Ernő Rubik aus Budapest."],
+  ["Wie hoch ist der Burj Khalifa in Dubai?",828,"Meter","Das höchste Gebäude der Welt."],
+  ["Wie viele Karten hat ein Skatblatt?",32,"Karten",""],
+  ["Wie viele Augen hat ein normaler Spielwürfel zusammen?",21,"Augen","1+2+3+4+5+6. Gegenüberliegende Seiten ergeben immer 7."],
+  ["Wie viele Länder sind Mitglied der Vereinten Nationen?",193,"Länder",""],
+  ["Über wie viele Zeitzonen erstreckt sich Russland?",11,"Zeitzonen",""],
+  ["Wie viele Buchstaben hat „Kraftfahrzeug-Haftpflichtversicherung“?",36,"Buchstaben","Gilt als längstes Wort im Duden."],
+  ["In welchem Jahr wurde Google gegründet?",1998,"",""],
+  ["Wie viele Felder hat ein Monopoly-Spielbrett?",40,"Felder",""],
+  ["Wie viele Menschen leben in China?",1.4,"Milliarden","Indien hat China inzwischen knapp überholt."]
+ ],
+ bremen:[
+  ["Seit welchem Jahr gibt es den Bremer Freimarkt?",1035,"","Einer der ältesten Jahrmärkte Deutschlands. „Ischa Freimaak!“"],
+  ["Wie viele Tage dauert der Bremer Freimarkt?",17,"Tage","Jedes Jahr im Oktober."],
+  ["In welchem Jahr wurde die Brauerei Beck's in Bremen gegründet?",1873,"","Als „Kaiserbrauerei Beck & May“."],
+  ["In wie viele Länder wird Beck's exportiert?",120,"Länder","Rund 120 Länder."],
+  ["Aus welchem Jahr stammt das älteste Haus im Schnoor?",1401,"","Das Packhaus Schnoor 2."],
+  ["Wie viele Häuser stehen ungefähr im Schnoorviertel?",100,"Häuser",""],
+  ["Wie hoch sind die Türme des Bremer Doms?",98,"Meter","Rund 98 m."],
+  ["Wie viele Mumien liegen im Bleikeller des Bremer Doms?",8,"Mumien","Sie trockneten auf natürliche Weise."],
+  ["In welchem Jahr erschienen die „Bremer Stadtmusikanten“ zuerst in den Grimmschen Märchen?",1819,"","In der 2. Auflage der Kinder- und Hausmärchen."],
+  ["Entlang welches östlichen Längengrads reist man durch das Klimahaus Bremerhaven?",8,"Grad Ost","Bremerhaven liegt fast genau auf 8° 34′ Ost."],
+  ["Wie groß ist das Bundesland Bremen, also Bremen plus Bremerhaven?",419,"km²","Das kleinste Bundesland."]
+ ],
+ kueste:[
+  ["Wie viele Halligen gibt es?",10,"Halligen","Alle in Nordfriesland."],
+  ["Wie lang ist der Hindenburgdamm nach Sylt?",11,"Kilometer","Rund 11 km, nur für die Bahn."],
+  ["In welchem Jahr wurde der Hindenburgdamm eröffnet?",1927,"",""],
+  ["Wie groß ist Rügen, die größte Insel Deutschlands?",926,"km²",""],
+  ["Wie lang ist die Seebrücke in Heringsdorf auf Usedom?",508,"Meter","Die längste Seebrücke Deutschlands."],
+  ["In welchem Jahr wurde der Leuchtturm „Roter Sand“ in der Wesermündung fertiggestellt?",1885,"",""],
+  ["Wie viele Einwohner hat die Insel Juist ungefähr?",1500,"Einwohner","Autofrei – dort fährt man Kutsche."]
+ ],
+ tiere:[
+  ["Wie viele Schnurrhaare hat eine Katze an der Schnauze?",24,"Haare","Meist 12 auf jeder Seite."],
+  ["Wie schnell kann eine Hauskatze rennen?",48,"km/h","Über kurze Strecken."],
+  ["Wie viele Hunderassen erkennt der Weltverband FCI an?",350,"Rassen","Rund 350."],
+  ["Wie alt wurde der älteste sicher belegte Hund der Welt?",29,"Jahre","Der australische Hütehund Bluey, 1910–1939."],
+  ["Wie viele Kilo Futter frisst ein Elefant am Tag?",150,"Kilogramm","Etwa 100–200 kg."],
+  ["Wie viele Monate ist eine Elefantenkuh trächtig?",22,"Monate","Die längste Tragzeit aller Landtiere."],
+  ["Wie viele Kilometer fliegt eine Küstenseeschwalbe pro Jahr?",70000,"Kilometer","Von der Arktis zur Antarktis und zurück."],
+  ["Wie weit kann ein Känguru springen?",9,"Meter","Bis etwa 9 m pro Sprung."],
+  ["Wie viele Augen haben die meisten Spinnen?",8,"Augen",""]
+ ],
+ essen:[
+  ["In welchem Jahr erfand Haribo die Gummibärchen (Tanzbären)?",1922,"","Hans Riegel in Bonn."],
+  ["In welchem Jahr kam Nutella auf den Markt?",1964,"",""],
+  ["In welchem Jahr soll der Döner im Brot in Berlin erfunden worden sein?",1972,"","Kadir Nurman gilt als Erfinder."],
+  ["Wie viele Wurstsorten gibt es in Deutschland?",1500,"Sorten","Über 1.500."],
+  ["Wie viele Kilo Käse isst ein Deutscher pro Jahr?",25,"Kilogramm",""],
+  ["Wie viele Eier isst ein Deutscher pro Jahr?",240,"Eier","Inklusive Eier in Nudeln, Kuchen usw."],
+  ["Wie viele Liter Milch braucht man für 1 kg Gouda?",10,"Liter",""],
+  ["Wie heiß ist ein Ofen für echte neapolitanische Pizza?",450,"°C","Die Pizza backt nur etwa 90 Sekunden."],
+  ["Wie viele Kilo Kartoffeln isst ein Deutscher im Jahr, Pommes und Chips mitgezählt?",60,"Kilogramm",""]
+ ],
+ sport:[
+  ["Wie breit ist ein Fußballtor?",7.32,"Meter","Und 2,44 m hoch."],
+  ["Wie lang ist ein Tennisplatz?",23.77,"Meter",""],
+  ["Wie viele Punkte kann man beim Darts mit drei Pfeilen maximal werfen?",180,"Punkte","Dreimal Triple-20."],
+  ["Wie schwer ist die Kugel beim Kugelstoßen der Männer?",7.26,"Kilogramm",""],
+  ["Wie viele Vereine spielen in der 1. Bundesliga?",18,"Vereine",""],
+  ["In welchem Jahr fanden die Olympischen Sommerspiele in München statt?",1972,"",""],
+  ["Wie viele Minuten brauchte Kelvin Kiptum für seinen Marathon-Weltrekord 2023?",120.6,"Minuten","2:00:35 Stunden in Chicago."],
+  ["Wie viele Spieler stehen beim Volleyball pro Team auf dem Feld?",6,"Spieler",""],
+  ["Wie viele Löcher hat ein normaler Golfplatz?",18,"Löcher",""]
+ ],
+ film:[
+  ["Von welchem Gleis fährt der Hogwarts-Express ab?",9.75,"Gleis","Gleis 9¾ im Bahnhof King's Cross."],
+  ["Wie viele Jahre saß Sirius Black in Askaban?",12,"Jahre",""],
+  ["Wie alt ist Harry, als er erfährt, dass er ein Zauberer ist?",11,"Jahre",""],
+  ["In welchem Jahr kam Disneys „Der König der Löwen“ als Zeichentrickfilm ins Kino?",1994,"",""],
+  ["In welchem Jahr kam „Toy Story“ ins Kino?",1995,"","Der erste komplett computeranimierte Kinofilm."],
+  ["Wie viele offizielle James-Bond-Filme gibt es bis „Keine Zeit zu sterben“?",25,"Filme",""],
+  ["Wie viele Folgen hat die Serie „Friends“?",236,"Folgen","In 10 Staffeln."],
+  ["In welchem Jahr kam „E.T. – Der Außerirdische“ ins Kino?",1982,"",""],
+  ["Wie viele Harry-Potter-Filme gibt es?",8,"Filme","Der letzte Band wurde auf zwei Filme aufgeteilt."]
+ ],
+ musik:[
+  ["Wie viele Sinfonien hat Beethoven geschrieben?",9,"Sinfonien",""],
+  ["In welchem Jahr gewann ABBA mit „Waterloo“ den ESC?",1974,"","In Brighton."],
+  ["Wie alt wurde Wolfgang Amadeus Mozart?",35,"Jahre",""],
+  ["In welchem Jahr wurde Elvis Presley geboren?",1935,"",""],
+  ["In welchem Jahr erschien „Atemlos durch die Nacht“ von Helene Fischer?",2013,"",""],
+  ["In welchem Jahr starb Michael Jackson?",2009,"",""],
+  ["Wie viele Halbtöne hat eine Oktave?",12,"Halbtöne",""],
+  ["Wie viele Musiker spielen in einem Streichquartett?",4,"Musiker","2 Geigen, Bratsche, Cello."]
+ ],
+ zeit:[
+  ["In welchem Jahr lief der erste Trabant vom Band?",1957,"","Der P50."],
+  ["Wie viele Trabis wurden insgesamt gebaut?",3.1,"Millionen","Gut 3 Millionen."],
+  ["Wie viele VW Käfer wurden weltweit gebaut?",21.5,"Millionen","Der letzte 2003 in Mexiko."],
+  ["In welchem Jahr kam der erste VW Golf auf den Markt?",1974,"",""],
+  ["Wie viele Pfennig kostete 2001 das Porto für einen Standardbrief?",110,"Pfennig","1,10 D-Mark."],
+  ["Seit welchem Jahr gibt es Farbfernsehen in der Bundesrepublik?",1967,"",""],
+  ["Wie viele Jahre war Helmut Kohl Bundeskanzler?",16,"Jahre","1982 bis 1998."],
+  ["In welchem Jahr kam das Tamagotchi heraus?",1996,"",""],
+  ["Seit welchem Jahr gibt es das DDR-Sandmännchen?",1959,"",""]
+ ],
+ junior:[
+  ["Wie viele Kontinente gibt es?",7,"Kontinente",""],
+  ["Wie viele Felder hat ein Schachbrett?",64,"Felder",""],
+  ["Wie viele Tage dauert es von Vollmond zu Vollmond?",29.5,"Tage",""],
+  ["Wie viele Zähne verbraucht ein Hai in seinem Leben?",30000,"Zähne","Sie wachsen immer wieder nach."],
+  ["Wie viele Ecken hat ein Würfel?",8,"Ecken",""],
+  ["Wie viele Streifen hat die Flagge der USA?",13,"Streifen","Für die 13 Gründungsstaaten."],
+  ["Wie viele Beine hat ein Krebs mit den Scheren?",10,"Beine",""],
+  ["Wie viele Spieler hat eine Fußballmannschaft auf dem Platz?",11,"Spieler",""]
+ ],
+ koerper:[
+  ["Wie viele Nervenzellen hat das menschliche Gehirn?",86,"Milliarden",""],
+  ["Wie groß ist die Hautfläche eines Erwachsenen?",1.8,"m²","Die Haut ist das größte Organ."],
+  ["Wie viele Knochen hat eine menschliche Hand?",27,"Knochen",""],
+  ["Wie viele Wirbel hat die Wirbelsäule insgesamt?",33,"Wirbel","Inklusive der verwachsenen Kreuz- und Steißbeinwirbel."],
+  ["Wie viele Grundgeschmacksrichtungen kann die Zunge schmecken?",5,"Richtungen","Süß, sauer, salzig, bitter, umami."],
+  ["Wie viele Liter sollte ein Erwachsener am Tag mindestens trinken?",1.5,"Liter",""]
+ ],
+ welt:[
+  ["Wie viele Erdtage dauert ein Jahr auf dem Mars?",687,"Tage",""],
+  ["In welchem Jahr landeten die ersten Menschen auf dem Mond?",1969,"",""],
+  ["Wie viele Erden würden in die Sonne passen?",1.3,"Millionen",""],
+  ["Wie viele Erdtage dauert ein Tag auf der Venus?",243,"Tage","Länger als ihr Jahr."],
+  ["Wie groß ist der Durchmesser des Mondes?",3474,"Kilometer",""],
+  ["Wie hoch ist der Olympus Mons auf dem Mars?",22,"Kilometer","Der höchste bekannte Vulkan im Sonnensystem."],
+  ["Wie tief ist das tiefste Bohrloch der Welt auf der russischen Kola-Halbinsel?",12262,"Meter",""]
+ ],
+ de:[
+  ["Wie viele Nachbarländer hat Deutschland?",9,"Länder",""],
+  ["Wie viele Abgeordnete sitzen seit 2025 im Bundestag?",630,"Abgeordnete",""],
+  ["Wie viel Prozent Deutschlands sind mit Wald bedeckt?",32,"Prozent","Etwa ein Drittel."],
+  ["Wie hoch ist das Brandenburger Tor?",26,"Meter",""],
+  ["Wie hoch ist der Brocken im Harz?",1141,"Meter",""],
+  ["Wie lang ist die Elbe insgesamt?",1094,"Kilometer",""],
+  ["Wie viele Einwohner hat Hamburg?",1.9,"Millionen",""]
+ ]
+};
+CATS.forEach(c=>{ if(MORE[c.k]) c.q.push(...MORE[c.k]); });
+CATS.push({k:"alltag", n:"Alltag & Technik", c:"#6B7A00", q:[
+  ["Wie viele Tasten hat eine deutsche Standard-PC-Tastatur?",105,"Tasten",""],
+  ["Wie viele Zeichen passen in eine SMS?",160,"Zeichen",""],
+  ["Wie viele Zeichen durfte ein Tweet ursprünglich haben?",140,"Zeichen","Seit 2017 sind es 280."],
+  ["In welchem Jahr ging YouTube online?",2005,"",""],
+  ["In welchem Jahr kam WhatsApp heraus?",2009,"",""],
+  ["In welchem Jahr kam die erste PlayStation in Japan heraus?",1994,"",""],
+  ["In welchem Jahr kam die Nintendo Switch heraus?",2017,"",""],
+  ["Wie lang ist die lange Seite eines DIN-A4-Blatts?",297,"Millimeter","Und 210 mm breit."],
+  ["Wie viele Blatt sind in einem Paket Druckerpapier?",500,"Blatt",""],
+  ["Wie viele Pixel ist ein Full-HD-Bild breit?",1920,"Pixel","Und 1.080 hoch."],
+  ["Wie lang ist das Schienennetz der Deutschen Bahn?",33000,"Kilometer","Rund 33.000 km."]
+]});
+
+/* ---------- State ---------- */
+const KEY="pimaldaumen.v1";
+const $=s=>document.querySelector(s);
+const app=$("#app");
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const fmt=(n,yr)=>Number(n).toLocaleString("de-DE",{maximumFractionDigits:5,useGrouping:!yr});
+const byKey=Object.fromEntries(CATS.map(c=>[c.k,c]));
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||null}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+let S = load() || {players:["Uli","Kevin"], usePoints:true, cats:CATS.map(c=>c.k), count:15, used:[], game:null};
+let showScores=false, confirmEnd=false;
+
+function parseNum(s){
+  s=String(s).trim().replace(/[\s']/g,"");
+  if(!s) return NaN;
+  const c=s.includes(","), d=s.includes(".");
+  if(c&&d) s=s.replace(/\./g,"").replace(",",".");
+  else if(c) s=s.replace(",",".");
+  else if(d && /^\d{1,3}(\.\d{3})+$/.test(s)) s=s.replace(/\./g,"");
+  return parseFloat(s);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startGame(){
+  let pool=[];
+  S.cats.forEach(k=>byKey[k].q.forEach((_,i)=>pool.push(k+":"+i)));
+  let fresh=pool.filter(id=>!S.used.includes(id));
+  if(fresh.length<Math.min(S.count,pool.length)){ S.used=S.used.filter(id=>!pool.includes(id)); fresh=pool; }
+  const n=S.count==="all"?fresh.length:Math.min(S.count,fresh.length);
+  const pts = S.usePoints && S.players.length ? S.players : [];
+  S.game={queue:shuffle(fresh).slice(0,n), idx:0, phase:"q", est:{}, players:pts.map(n=>({name:n,score:0})), last:null};
+  save(); render();
+}
+function cur(){const [k,i]=S.game.queue[S.game.idx].split(":");const c=byKey[k];const q=c.q[+i];return {c,q,id:S.game.queue[S.game.idx]}}
+
+function reveal(){
+  const g=S.game, {q,id}=cur(), a=q[1];
+  const rows=g.players.map((p,i)=>{const v=parseNum(g.est[i]??"");return {i,name:p.name,v,d:isNaN(v)?Infinity:Math.abs(v-a)}});
+  const valid=rows.filter(r=>isFinite(r.d));
+  let winners=[];
+  if(valid.length){const m=Math.min(...valid.map(r=>r.d)); winners=valid.filter(r=>Math.abs(r.d-m)<1e-9).map(r=>r.i)}
+  winners.forEach(i=>g.players[i].score++);
+  g.last={rows:rows.sort((x,y)=>x.d-y.d),winners};
+  g.phase="r"; if(!S.used.includes(id)) S.used.push(id);
+  save(); render(); window.scrollTo({top:0,behavior:"smooth"});
+}
+function next(){
+  const g=S.game; g.idx++; g.est={}; g.last=null; g.phase = g.idx>=g.queue.length ? "end" : "q";
+  save(); render(); window.scrollTo({top:0});
+}
+function skip(){ const {id}=cur(); if(!S.used.includes(id)) S.used.push(id); next(); }
+
+/* ---------- Views ---------- */
+function vHome(){
+  const total=CATS.reduce((s,c)=>s+c.q.length,0);
+  const sel=S.cats.reduce((s,k)=>s+byKey[k].q.length,0);
+  return `
+  <header class="logo">
+    <div class="burst"><h1>Pi mal<br>Daumen!</h1></div>
+    <div class="thumb" aria-hidden="true">${total}<br>Fragen</div>
+    <div><span class="tag">Das Schätzspiel für die ganze Familie</span></div>
+  </header>
+  ${S.game && S.game.phase!=="end" ? `<button class="btn go big" id="resume" style="margin:10px 0 18px">Weiterspielen · Frage ${S.game.idx+1} von ${S.game.queue.length}</button>`:""}
+  <div class="stack">
+    <section class="card section stack">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="font-size:24px">Wer spielt mit?</h2>
+        <label class="toggle"><input type="checkbox" id="usePts" ${S.usePoints?"checked":""}> Punkte zählen</label>
+      </div>
+      <div class="players">${S.players.map((p,i)=>`<span class="chip">${esc(p)}<button data-rm="${i}" aria-label="${esc(p)} entfernen">✕</button></span>`).join("") || `<p class="hint">Noch niemand eingetragen – ihr könnt auch ohne Namen spielen.</p>`}</div>
+      <form class="addrow" id="addForm"><input class="inp" id="newName" placeholder="Name eingeben" maxlength="18" autocomplete="off"><button class="btn small" type="submit">+ Dazu</button></form>
+      <p class="hint">Der Vorleser wechselt jede Frage. Alle schätzen geheim auf einem Zettel, dann werden die Zahlen eingetippt. Wer am nächsten dran ist, bekommt einen Punkt – bei Gleichstand alle.</p>
+    </section>
+
+    <section class="card section stack">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="font-size:24px">Kategorien</h2>
+        <div class="row" style="gap:8px"><button class="btn small" id="allOn">Alle</button><button class="btn small" id="allOff">Keine</button></div>
+      </div>
+      <div class="cats">${CATS.map(c=>`<button class="cat" data-cat="${c.k}" style="--c:${c.c}" aria-pressed="${S.cats.includes(c.k)}">
+        <span class="dot" style="background:${c.c}">${S.cats.includes(c.k)?"✓":""}</span><span class="nm">${esc(c.n)}</span><span class="ct">${c.q.length} Fragen</span></button>`).join("")}</div>
+    </section>
+
+    <section class="card section stack">
+      <h2 style="font-size:24px">Wie viele Fragen?</h2>
+      <div class="seg">${[10,15,20,30,"all"].map(n=>`<button data-count="${n}" aria-pressed="${S.count==n}">${n==="all"?"Alle":n}</button>`).join("")}</div>
+      <p class="hint">${sel} Fragen in deiner Auswahl · ${S.used.length} davon schon gespielt. Gespielte Fragen kommen erst wieder, wenn alle durch sind.</p>
+    </section>
+
+    <button class="btn primary big" id="start" ${S.cats.length?"":"disabled"}>Los geht's!</button>
+    ${S.used.length?`<button class="btn small" id="resetUsed" style="align-self:center">Gespielte Fragen zurücksetzen</button>`:""}
+  </div>
+  <p class="foot">Pi mal Daumen · alle Fragen selbst zusammengestellt · Angaben gerundet, Stand ca. 2025</p>`;
+}
+
+function vGame(){
+  const g=S.game, {c,q}=cur(), P=g.players, hasP=P.length>0;
+  const reader = S.players.length ? S.players[g.idx % S.players.length] : null;
+  const top=`<div class="topbar">
+     <button class="btn small" id="home">‹ Menü</button>
+     <span class="counter">${g.idx+1} / ${g.queue.length}</span>
+     ${hasP?`<button class="btn small" id="scoresBtn">Punkte</button>`:`<span></span>`}
+   </div>`;
+  const qcard=`<article class="card qcard" style="--c:${c.c}">
+     <span class="catpill" style="--c:${c.c}">${esc(c.n)}</span>
+     <p class="qtext">${esc(q[0])}</p>
+     ${q[2]?`<div class="unit">Antwort in: ${esc(q[2])}</div>`:`<div class="unit">Antwort: eine Jahreszahl</div>`}
+     ${reader?`<div class="reader">Vorleser: <b>${esc(reader)}</b></div>`:""}
+   </article>`;
+  if(g.phase==="q"){
+    return top+`<div class="stack">${qcard}
+      ${hasP?`<section class="card section stack"><h3 style="font-size:20px">Schätzungen</h3>
+        <form class="est" id="estForm">${P.map((p,i)=>`<div class="estrow"><label for="e${i}">${esc(p.name)}</label>
+          <input class="inp" id="e${i}" data-i="${i}" inputmode="decimal" autocomplete="off" placeholder="${q[2]?esc(q[2]):"Jahr"}" value="${esc(g.est[i]??"")}"></div>`).join("")}</form>
+        <p class="hint">Kommazahlen mit Komma, Tausender gern mit Punkt: 3,5 oder 1.200.</p></section>`:""}
+      <button class="btn go big" id="reveal">Auflösen</button>
+      <button class="btn small" id="skip" style="align-self:center">Frage überspringen</button>
+    </div>`;
+  }
+  const L=g.last;
+  const winNames=L.winners.map(i=>P[i].name);
+  return top+`<div class="stack">
+    <article class="card qcard" style="--c:${c.c}">
+      <span class="catpill" style="--c:${c.c}">${esc(c.n)}</span>
+      <p class="qtext" style="font-size:clamp(19px,4.4vw,24px)">${esc(q[0])}</p>
+      <div class="answer"><span class="big">${fmt(q[1],!q[2])}</span><span class="u">${esc(q[2]||"")}</span>
+        ${q[3]?`<p class="info">${esc(q[3])}</p>`:""}
+        <p class="hint" style="margin-top:12px">Zweifel? <a class="lnk" href="https://www.google.com/search?q=${encodeURIComponent(q[0])}" target="_blank" rel="noopener">Frage googeln</a></p>
+      </div>
+    </article>
+    ${hasP?`<section class="card section stack">
+      <h3 style="font-size:22px">${winNames.length?`<span class="win-badge">Punkt für ${esc(winNames.join(" & "))}!</span>`:"Keiner hat geschätzt"}</h3>
+      <div class="results">${L.rows.map(r=>`<div class="res ${L.winners.includes(r.i)?"win":""}"><span class="v">${esc(r.name)}</span>
+        <span>${isNaN(r.v)?"–":fmt(r.v,!q[2])}</span><span class="d">${isFinite(r.d)?(r.d===0?"Volltreffer!":"daneben: "+fmt(+r.d.toPrecision(6))):""}</span></div>`).join("")}</div>
+    </section>`:""}
+    <button class="btn primary big" id="next">${g.idx+1>=g.queue.length?"Zum Ergebnis":"Nächste Frage"}</button>
+  </div>`;
+}
+
+function ranking(){return [...S.game.players].map((p,i)=>({...p,i})).sort((a,b)=>b.score-a.score)}
+function vScoresList(edit){
+  return `<div class="scores">${ranking().map((p,k,arr)=>{const pos=arr.findIndex(x=>x.score===p.score)+1;
+   return `<div class="score"><span class="pos">${pos}.</span><span style="font-weight:900">${esc(p.name)}</span>
+   ${edit?`<button class="pm" data-pm="${p.i}:-1" aria-label="Punkt abziehen">−</button><button class="pm" data-pm="${p.i}:1" aria-label="Punkt dazu">+</button>`:"<span></span><span></span>"}
+   <span class="pts">${p.score}</span></div>`}).join("")}</div>`;
+}
+function vEnd(){
+  const g=S.game, has=g.players.length>0, r=has?ranking():[];
+  const cols=["#C0C6D6","#FFCC2E","#E3A36B"], order=[1,0,2], h=[110,150,90];
+  return `<header class="logo"><div class="burst" style="background:var(--teal)"><h1 style="font-size:clamp(34px,9vw,58px)">Geschafft!</h1></div></header>
+  <div class="stack">
+  ${has?`<section class="card section stack">
+    <h2 style="font-size:24px;text-align:center">${esc(r[0].name)} gewinnt mit ${r[0].score} Punkt${r[0].score===1?"":"en"}</h2>
+    <div class="podium">${order.map(k=>r[k]?`<div class="pod" style="background:${cols[k]};min-height:${h[k]}px"><div class="p">${r[k].score}</div><div class="n">${esc(r[k].name)}</div></div>`:`<div></div>`).join("")}</div>
+    ${vScoresList(false)}</section>`:`<section class="card section"><p style="margin:0;text-align:center">${g.queue.length} Fragen gespielt. Wer war am nächsten dran?</p></section>`}
+  <button class="btn primary big" id="again">Nochmal mit denselben Einstellungen</button>
+  <button class="btn big" id="home2">Zum Menü</button></div>`;
+}
+
+function render(){
+  let html;
+  if(!S.game || S.view==="home") html=vHome();
+  else if(S.game.phase==="end") html=vEnd();
+  else html=vGame();
+  if(showScores && S.game) html+=`<div class="modal" id="modal"><div class="card stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:24px">Punktestand</h2><button class="btn small" id="closeM">Fertig</button></div>${vScoresList(true)}
+    <p class="hint">Mit + und − korrigierst du Punkte von Hand.</p>
+    ${confirmEnd?`<div class="row"><span style="font-weight:900">Spiel wirklich beenden?</span><button class="btn small primary" id="endYes">Ja, beenden</button><button class="btn small" id="endNo">Nein</button></div>`:`<button class="btn small" id="endGame" style="align-self:flex-start">Spiel jetzt beenden</button>`}</div></div>`;
+  app.innerHTML=html;
+  bind();
+}
+
+function bind(){
+  const on=(sel,fn,ev="click")=>{const el=typeof sel==="string"?$(sel):sel; if(el) el.addEventListener(ev,fn)};
+  on("#addForm",e=>{e.preventDefault(); const v=$("#newName").value.trim(); if(v && !S.players.includes(v)){S.players.push(v); save(); render(); $("#newName").focus();}},"submit");
+  document.querySelectorAll("[data-rm]").forEach(b=>on(b,()=>{S.players.splice(+b.dataset.rm,1); save(); render()}));
+  on("#usePts",e=>{S.usePoints=e.target.checked; save()},"change");
+  document.querySelectorAll("[data-cat]").forEach(b=>on(b,()=>{const k=b.dataset.cat; S.cats=S.cats.includes(k)?S.cats.filter(x=>x!==k):[...S.cats,k]; save(); render()}));
+  on("#allOn",()=>{S.cats=CATS.map(c=>c.k); save(); render()});
+  on("#allOff",()=>{S.cats=[]; save(); render()});
+  document.querySelectorAll("[data-count]").forEach(b=>on(b,()=>{const v=b.dataset.count; S.count=v==="all"?"all":+v; save(); render()}));
+  on("#start",()=>{S.view="game"; startGame()});
+  on("#resume",()=>{S.view="game"; render()});
+  on("#resetUsed",()=>{S.used=[]; save(); render()});
+  on("#home",()=>{S.view="home"; save(); render(); window.scrollTo({top:0})});
+  on("#home2",()=>{S.view="home"; S.game=null; save(); render(); window.scrollTo({top:0})});
+  on("#again",()=>{S.view="game"; startGame(); window.scrollTo({top:0})});
+  document.querySelectorAll("#estForm input").forEach(inp=>{
+    on(inp,e=>{S.game.est[inp.dataset.i]=e.target.value; save()},"input");
+    on(inp,e=>{if(e.key==="Enter"){e.preventDefault(); const n=document.getElementById("e"+(+inp.dataset.i+1)); n?n.focus():reveal()}},"keydown");
+  });
+  on("#estForm",e=>e.preventDefault(),"submit");
+  on("#reveal",reveal); on("#skip",skip); on("#next",next);
+  on("#scoresBtn",()=>{showScores=true; confirmEnd=false; render()});
+  on("#closeM",()=>{showScores=false; render()});
+  on("#modal",e=>{if(e.target.id==="modal"){showScores=false; render()}});
+  document.querySelectorAll("[data-pm]").forEach(b=>on(b,()=>{const [i,d]=b.dataset.pm.split(":").map(Number); const p=S.game.players[i]; p.score=Math.max(0,p.score+d); save(); render()}));
+  on("#endGame",()=>{confirmEnd=true; render()});
+  on("#endNo",()=>{confirmEnd=false; render()});
+  on("#endYes",()=>{S.game.phase="end"; showScores=false; confirmEnd=false; save(); render(); window.scrollTo({top:0})});
+}
+if(S.game && S.game.phase!=="end") S.view="home";
+render();
+</script>
+
+</body>
+</html>
